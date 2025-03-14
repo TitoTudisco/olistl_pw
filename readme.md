@@ -1,15 +1,12 @@
-## TITOLO
-# Esempio
-Testo normale 
 
-* PIPPO
 
 ## TABEllE
 **customers**
 - pk_customer VARCHAR
 - region VARCHAR
 - city VARCHAR
-- cap (VARCHAR  SI PUò ELIMINAREformattare con gli 00 davanti)
+- cap (VARCHAR  SI PUò ELIMINARE / formattare con gli 00 davanti)
+- 
 
 **categories**
 - pk_category SERIAL
@@ -42,3 +39,13 @@ Testo normale
 - fk_seller VARCHAR
 - price FLOAT
 - freight FLOAT (=costo di trasporto)
+
+## To do opzionale
+in common py
+- copia del file in input alla cartella raw
+- (fare in modo che il nome del file sia univoco)
+- prima di fare il load creare database da Python
+- Controllo di validità input 
+- Upper per si/NO  
+- Controllo user password eliminazione tabella 
+- Aggiunta colonna inserimento (data inserimento database)
