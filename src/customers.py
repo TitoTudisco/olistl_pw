@@ -1,3 +1,5 @@
+import datetime
+
 import psycopg
 from dotenv import load_dotenv
 import os
@@ -27,6 +29,7 @@ def transform(df):
     return df
 
 def load(df):
+    df["last_updated"] = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
     print("Questo è il metodo LOAD dei clienti")
     #debug print(df)
 
@@ -38,7 +41,8 @@ def load(df):
             pk_customer VARCHAR PRIMARY KEY,
             region VARCHAR,
             city VARCHAR,
-            cap VARCHAR
+            cap VARCHAR,
+            last_updated TIMESTAMP
             );
             """
 
@@ -55,10 +59,13 @@ def load(df):
                     print("Ricreo la tabella customers")
                     cur.execute(sql)
 
-            sql = """
-            INSERT INTO customers
-            (pk_customer, region, city, cap)
-            VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING; 
+            #se ci sono doppioni li modifica
+            sql = """ 
+                  INSERT INTO customers
+                  (pk_customer, region, city, cap, last_updated)
+                  VALUES (%s, %s, %s, %s, %s)
+                  ON CONFLICT (pk_customer) DO UPDATE 
+                  SET (region, city, cap, last_updated) = (EXCLUDED.region, EXCLUDED.city, EXCLUDED.cap, EXCLUDED.last_updated);
             """
 
 
@@ -70,9 +77,10 @@ def complete_city_region():
     with psycopg.connect(host=host, dbname=dbname, user=user, password=password, port=port) as conn:
         with conn.cursor() as cur:
             #regione
-            sql = """      
+            sql = f"""      
                 UPDATE customers AS c1 
-                SET region = c2.region
+                SET region = c2.region,
+                last_updated = '{datetime.datetime.now().isoformat(sep=" ", timespec="seconds")}'
                 FROM customers AS c2
                 WHERE c1.cap = c2.cap
                 AND c1.cap <> 'NaN'
@@ -92,9 +100,10 @@ def complete_city_region():
                # print(record)
             #print(cur.rowcount())
 
-            sql = """      
+            sql = f"""      
                            UPDATE customers AS c1 
-                           SET city = c2.city
+                           SET city = c2.city,
+                           last_updated = '{datetime.datetime.now().isoformat(sep=" ", timespec="seconds")}'
                            FROM customers AS c2
                            WHERE c1.cap = c2.cap
                            AND c1.cap <> 'NaN'

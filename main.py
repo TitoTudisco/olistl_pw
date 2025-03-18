@@ -1,7 +1,14 @@
 import src.customers as customers
 import src.products as products
+from src import common
 
 if __name__ == "__main__":
+    #prova
+    pippo = "yabadoo..."
+    pippo_lista = pippo.split(".")
+    print(pippo_lista)
+
+
     risposta = "-1"
     while risposta != "0":
         risposta = input("""Che cosa vuoi fare?
@@ -14,6 +21,11 @@ if __name__ == "__main__":
             customers.load(df_customer)
         elif risposta == "2" :
             customers.complete_city_region()
+
+        elif risposta == "3":
+            common.formatregion
+
+
         else:
             risposta = "0"
 

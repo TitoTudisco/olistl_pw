@@ -1,17 +1,33 @@
 import pandas as pd
 import datetime
-import numpy as np
-from pandas.core.interchange.dataframe_protocol import DataFrame
+import os
+import psycopg
+from dotenv import load_dotenv
+
+load_dotenv()
+host = os.getenv("host")
+dbname = os.getenv("dbname")
+user = os.getenv("user")
+password = os.getenv("password")
+port = os.getenv("port")
 
 
-#analogo al metodo extract
+
+#analogo al metodo extract, fare in modo che legga diversi tipi di file
 def readFile():
     isValid = False
     df = pd.DataFrame()
     while not isValid:
         path = input("Inserire il path del file:\n").strip()
         try:
-            df = pd.read_csv(path)
+            path_list = path.split(".")
+
+            if path_list[-1] == "csv" or path_list[-1] == "txt":
+                df = pd.read_csv(path)
+            elif path_list[-1] == "xlsx" or path_list[-1] == "xls":
+                df = pd.read_excel(path)
+            else:
+                df = pd.read_json(path)
         except FileNotFoundError as ex:
             print(ex)
         except OSError as ex:
@@ -90,17 +106,68 @@ def saveProcessed(df):
         directory_name = "data/processed/"
     df.to_csv(directory_name + file_name, index = False)
 
+def format_region():
+    print("Formattazione dei nomi delle regioni per PowerBI")
+    nome_tabella = input("inserisci il nome della tabella da modificare ").strip().lower()
+    with psycopg.connect(host=host, dbname=dbname, user=user, password=password, port=port) as conn:
+        with conn.cursor() as cur:
+            sql = f"""
+            UPDATE {nome_tabella} 
+            SET region = 'Emilia-Romagna'
+            WHERE region = 'Emilia Romagna'
+            RETURNING *
+            """
+            cur.execute(sql)
+            print("Record con regione aggiornata \n")
+            for record in cur:
+                print(record)
+
+            sql = f"""
+            UPDATE {nome_tabella} 
+            SET region = 'Friuli-VeneziaGiulia'
+            WHERE region = 'Friuli Venezia Giulia'
+            RETURNING *
+            """
+            cur.execute(sql)
+            print("Record con regione aggiornata \n")
+            for record in cur:
+                print(record)
+
+            sql = f"""
+            UPDATE {nome_tabella} 
+            SET region = 'Trentino-AltoAdige'
+            WHERE region = 'Trentino Alto Adige'
+            RETURNING *
+            """
+            cur.execute(sql)
+            print("Record con regione aggiornata \n")
+            for record in cur:
+                print(record)
+
+            sql = f"""
+            UPDATE {nome_tabella} 
+            SET region = 'Valled''Aosta'
+            WHERE region = 'Valle d''Aosta'
+            RETURNING *
+            """
+            cur.execute(sql)
+            print("Record con regione aggiornata \n")
+            for record in cur:
+                print(record)
+
+
 #testing
 if __name__ == "__main__" :
-    df=readFile()
-    print("Visualizza i dati prima di format cap")
+    #df=readFile()
+    #print("Visualizza i dati prima di format cap")
     #df = format_string(df,["region", "city"])
-    print(df)
-    df = format_cap(df)
-    print("Visualizza dati dopo format cap")
+    #print(df)
+    #df = format_cap(df)
+    #print("Visualizza dati dopo format cap")
     #checkNulls(df,["customer_id"])
     #readFile()
     #saveProcessed([],"pippo")
+    format_region()
 #volendo si può fare in modo che: ricevere il path del file, copiare il file nella cartella data\raw (aggiungere data
 # e ora per rendere il file univoco)
 
