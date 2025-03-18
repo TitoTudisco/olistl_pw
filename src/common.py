@@ -38,12 +38,14 @@ def caricamento_barra(df,cur,sql):
     print("│ 100% Completato!")
     print("└──────────────────────────────────────────────────┘")
 
-def formatcap (df):
+def format_cap (df):
     # Converte in stringa e riempie con zeri fino a 5 cifre
-    if "cap" in df.columns:
+    #if "cap" in df.columns:
         #debug df ["cap"].fillna(value="00000"
         #df["cap"] = np.where(df["cap"] == "nan", [0], df["cap"])
-        df["cap"].astype(str).str.zfill(5)
+        #df["cap"].astype(str).str.zfill(5, inplace=True)
+    df["cap"] = df["cap"].fillna(0).astype(int).astype(str).str.zfill(5)
+    print("Questo è il format_cap")
     return df
 
 def format_string(df, cols):
@@ -91,8 +93,11 @@ def saveProcessed(df):
 #testing
 if __name__ == "__main__" :
     df=readFile()
-    df = format_string(df,["region", "city"])
+    print("Visualizza i dati prima di format cap")
+    #df = format_string(df,["region", "city"])
     print(df)
+    df = format_cap(df)
+    print("Visualizza dati dopo format cap")
     #checkNulls(df,["customer_id"])
     #readFile()
     #saveProcessed([],"pippo")
