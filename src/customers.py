@@ -22,7 +22,7 @@ def extract():
 def transform(df):
     print ("questo è il metodo TRANSFORM dei clienti")
     df = common.drop_duplicates(df)
-    df= common.check_nulls(df, ["customer_id"])
+    df= common.check_nulls(df, ["customer_id","region","city","cap"])
     df = common.format_string(df, ["region", "city"])
     df = common.format_cap(df)
    # common.saveProcessed(df)
@@ -67,7 +67,6 @@ def load(df):
                   ON CONFLICT (pk_customer) DO UPDATE 
                   SET (region, city, cap, last_updated) = (EXCLUDED.region, EXCLUDED.city, EXCLUDED.cap, EXCLUDED.last_updated);
             """
-
 
             common.caricamento_barra(df,cur,sql)
 
